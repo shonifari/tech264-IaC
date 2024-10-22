@@ -66,12 +66,3 @@ Using Terraform for different environments ensures consistency and repeatability
 - **Ensure Consistency**: Use the same configuration files to provision identical environments, reducing discrepancies and bugs².
 
 ---
-
-¹: [HashiCorp Developer](https://developer.hashicorp.com/terraform/intro)
-²: [Zero To Mastery](https://zerotomastery.io/blog/benefits-of-using-terraform/)
-[^10^]: [Spacelift](https://spacelift.io/blog/terraform-alternatives)
-¹⁴: [HashiCorp Developer](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/infrastructure-as-code)
-¹⁶: [DigitalOcean](https://www.digitalocean.com/resources/articles/cloud-orchestration)
-¹⁹: [Enlyft](https://enlyft.com/tech/products/hashicorp-terraform)
-[^20^]: [HashiCorp](https://www.hashicorp.com/resources/the-story-of-hashicorp-terraform-with-mitchell-hashimoto)
-```
