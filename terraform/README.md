@@ -1,5 +1,16 @@
 # Terraform Overview
 
+- [Terraform Overview](#terraform-overview)
+  - [What is Terraform? What is it used for?](#what-is-terraform-what-is-it-used-for)
+  - [Why use Terraform? The benefits?](#why-use-terraform-the-benefits)
+  - [Alternatives to Terraform](#alternatives-to-terraform)
+  - [Who is using Terraform in the industry?](#who-is-using-terraform-in-the-industry)
+  - [In IaC, what is orchestration? How does Terraform act as "orchestrator"?](#in-iac-what-is-orchestration-how-does-terraform-act-as-orchestrator)
+  - [Best practice supplying AWS credentials to Terraform](#best-practice-supplying-aws-credentials-to-terraform)
+    - [Order of AWS Credentials Lookup](#order-of-aws-credentials-lookup)
+    - [Best Practices](#best-practices)
+  - [Why use Terraform for different environments (e.g., production, testing, etc)?](#why-use-terraform-for-different-environments-eg-production-testing-etc)
+
 ## What is Terraform? What is it used for?
 
 Terraform is an open-source Infrastructure as Code (IaC) tool developed by HashiCorp. It allows users to define and provision data center infrastructure using a high-level configuration language called HashiCorp Configuration Language (HCL) or JSON. Terraform is used to build, change, and version infrastructure safely and efficiently across various cloud providers and on-premises environments¹.
