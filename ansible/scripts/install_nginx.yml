@@ -1,0 +1,22 @@
+# starts with ---
+---
+
+- name: install nginx play
+  # Where to run this playbook
+  hosts: web
+
+  # get comprehensive facts on the hosts
+  gather_facts: yes
+
+  # do we need admin access - use sudo
+  become: true
+
+  # instructions aka tasks
+  # task - install nginx
+  tasks:
+  - name: install and configure nginx
+    # Use package 'nginx', 'state=present' means we need it running
+    apt: pkg=nginx state=present
+  
+
+

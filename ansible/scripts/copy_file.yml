@@ -1,0 +1,19 @@
+# starts with ---
+---
+
+- name: copy test.txt file
+  # Where to run this playbook
+  hosts: web
+
+  # get comprehensive facts on the hosts
+  gather_facts: yes
+
+  # do we need admin access - use sudo
+  become: true
+
+  # instructions aka tasks
+  tasks:
+  - name: Copy file with owner and permissions
+    ansible.builtin.copy:
+      src: /home/ubuntu/test.txt  # Replace with the full path to the source file
+      dest: "/home/{{ ansible_user }}/test.txt"
