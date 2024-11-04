@@ -6,6 +6,9 @@
   # Admin access
   become: true
   
+  vars:
+    db_host_ip : "{{hostvars[groups['db'][0]]['ansible_defult_ipv4']['address'] }}"
+
   # instructions aka tasks
   tasks:
     # CLONE APP
@@ -24,19 +27,21 @@
       force_apt_get: yes
       cache_valid_time: 3600
 
-  # Add Nodejs repository
+  # Nodejs
+
+  ## Add Nodejs repository
   - name: Install NodeSource Node.js 20.x repository
     ansible.builtin.shell: |
       curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
   
-  # Install Nodejs
+  ## Install Nodejs
   - name: Install Node.js and npm
     apt:
       name:
         - nodejs
       state: present
 
-  # Verify Nodejs
+  ## Verify Nodejs
   - name: Verify Node.js version
     ansible.builtin.command: node -v
     register: node_version
@@ -46,14 +51,14 @@
       msg: "Node.js version is {{ node_version.stdout }}"
 
 
-  # Install PM2
+  ## Install PM2
   - name: Install PM2
     npm:
       name: pm2
       global: yes
       state: present
 
-  # Copy app
+  ## Copy app
   - name: Copy app folder to target node      
     ansible.builtin.copy:
         src: /home/{{ ansible_user }}/repo/
@@ -61,37 +66,66 @@
         mode: '0755'
   
 
-  # Export DB variable
-  - name: Export DB HOST 
-    shell: export DB_HOST="mongodb://172.31.58.27:27017/posts"
+  ## Verify DB_HOST variable
+  - name: Verify env DB_HOST
+    become: false
+    ansible.builtin.command: printenv DB_HOST
+    register: db_host
+    environment:
+      DB_HOST: mongodb://{{db_host_ip}}:27017/posts
 
-  # NPM Install app dependencies
+  - name: Print environment variable
+    become: false
+    ansible.builtin.debug:
+      msg: "DB_HOST={{ db_host.stdout }}"
+
+
+
+  ## NPM Install app dependencies
   - name: Install packages based on package.json.
+    become: false
     community.general.npm:
       path: /home/{{ ansible_user }}/repo/app/
+    environment:
+      DB_HOST: mongodb://{{db_host_ip}}:27017/posts
 
-  # PM2 stop all and start app
+
+  # Seed the database
+  - name: Seed the MongoDB database
+    become: false
+    ansible.builtin.command:
+      cmd: node seeds/seed.js
+    args:
+      chdir: /home/{{ ansible_user }}/repo/app
+
+  ## PM2 stop all
   - name: Stop all previous processes
+    become: false
     shell: pm2 stop all || true
     args:
       chdir: /home/{{ ansible_user }}/repo/app
  
-  # PM2start app
-  - name: Stop all previous and start the application using PM2
+  ## PM2 start app
+  - name: Start the application using PM2
+    become: false
     shell: pm2 start app.js
     args:
       chdir: /home/{{ ansible_user }}/repo/app
   
 
-  # Install nginx
-  - name: install nginx
+  # Nginx
+
+  ## Install Nginx
+  - name: install Nginx
     # Use package 'nginx', 'state=present' means we need it running
     apt: pkg=nginx state=present
 
-  # Configure Nginx
-  - name: Start the application using PM2
+  ## Configure Nginx
+  - name: configure Nginx
     shell: sed -i 's|try_files $uri $uri/ =404;|proxy_pass http://localhost:3000;|' /etc/nginx/sites-available/default
 
-  # Restart Nginx
-  - name: Restart nginx 
-    shell: systemctl restart nginx
+  ## Restart Nginx
+  - name: restart Nginx
+    service:
+      name: nginx
+      state: restarted

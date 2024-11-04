@@ -18,6 +18,11 @@
   
   tasks:
 
+  # Update cache
+  - name: Update system package list
+    apt:
+      update_cache: yes
+
   # Install MongoDB
   - name: Import the MongoDB public key
     ansible.builtin.apt_key:
@@ -52,12 +57,24 @@
       line: '  bindIp: 0.0.0.0'
       insertafter: '^# network interfaces'
       
-  # Restart Nginx
+  # Restart MongoDB
   - name: restart mongodb
     service:
       name: mongod
       state: restarted
 
+  - name: Verify mongodb configure
+    shell: grep "bindIp" /etc/mongod.conf  
+    register: bindip
 
-# ansible db  -a "sudo systemctl status nginx"
-# ansible db  -a "grep 'bindIp' /etc/mongod.conf"
+  - name: Print BindIP
+    ansible.builtin.debug:
+      msg: "{{ bindip.stdout }}"
+
+  - name: Verify mongodb is active
+    shell: systemctl status mongod | grep "Active"
+    register: mongodb_active
+
+  - name: Print MongoDB is active
+    ansible.builtin.debug:
+      msg: "{{ mongodb_active.stdout }}"

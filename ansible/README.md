@@ -15,4 +15,4 @@ A guide for all the [basic commands](basics.md)
 
 ## Provisioning app
 
-[Provisioning application](provision_app.md)
+[Provisioning application](provision-app.md)

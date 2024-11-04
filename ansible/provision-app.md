@@ -4,16 +4,17 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 
 - [Ansible Playbook Documentation](#ansible-playbook-documentation)
   - [Playbook Structure](#playbook-structure)
-    - [Task Breakdown](#task-breakdown)
-      - [**Clone the App Repository**](#clone-the-app-repository)
-      - [**Update apt Repository and Cache**](#update-apt-repository-and-cache)
-      - [**Install NodeSource Node.js 20.x Repository**](#install-nodesource-nodejs-20x-repository)
-      - [**Install Node.js and npm**](#install-nodejs-and-npm)
-      - [**Verify and print Node.js Version**](#verify-and-print-nodejs-version)
-      - [**Install PM2**](#install-pm2)
-      - [**Copy App Folder to Target Node**](#copy-app-folder-to-target-node)
-      - [**Install Packages Based on package.json**](#install-packages-based-on-packagejson)
-      - [**Start the Application Using PM2**](#start-the-application-using-pm2)
+  - [Task Breakdown](#task-breakdown)
+    - [**Clone the App Repository**](#clone-the-app-repository)
+    - [**Update apt Repository and Cache**](#update-apt-repository-and-cache)
+    - [**Install NodeSource Node.js 20.x Repository**](#install-nodesource-nodejs-20x-repository)
+    - [**Install Node.js and npm**](#install-nodejs-and-npm)
+    - [**Verify and print Node.js Version**](#verify-and-print-nodejs-version)
+    - [**Install PM2**](#install-pm2)
+    - [**Copy App Folder to Target Node**](#copy-app-folder-to-target-node)
+    - [**Install Packages Based on package.json**](#install-packages-based-on-packagejson)
+    - [**Stop the Application Using PM2**](#stop-the-application-using-pm2)
+    - [**Start the Application Using PM2**](#start-the-application-using-pm2)
 
 ## Playbook Structure
 
@@ -30,9 +31,9 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 
 ```
 
-### Task Breakdown
+## Task Breakdown
 
-#### **Clone the App Repository**
+### **Clone the App Repository**
 
     ```yaml
     - name: Clone the app repository to the controller node
@@ -50,7 +51,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
   - `dest`: The destination directory on the controller node.
   - `version`: The branch to clone (main).
 
-#### **Update apt Repository and Cache**
+### **Update apt Repository and Cache**
 
     ```yaml
     - name: Update apt repository and cache
@@ -67,7 +68,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
   - `force_apt_get`: Forces the use of `apt-get`.
   - `cache_valid_time`: Sets the cache validity time.
 
-#### **Install NodeSource Node.js 20.x Repository**
+### **Install NodeSource Node.js 20.x Repository**
 
     ```yaml
     - name: Install NodeSource Node.js 20.x repository
@@ -80,7 +81,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 - **Module**: `ansible.builtin.shell`
 - **Details**: Runs a shell command to add the repository.
 
-#### **Install Node.js and npm**
+### **Install Node.js and npm**
 
     ```yaml
     - name: Install Node.js and npm
@@ -96,7 +97,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
   - `name`: Specifies the packages to install.
   - `state`: Ensures the packages are present.
 
-#### **Verify and print Node.js Version**
+### **Verify and print Node.js Version**
 
     ```yaml
     - name: Verify Node.js version
@@ -112,7 +113,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 - **Module**: `ansible.builtin.command`, `ansible.builtin.debug`
 - **Details**: Runs the `node -v` command, registers the output and prints.
 
-#### **Install PM2**
+### **Install PM2**
 
     ```yaml
     - name: Install PM2
@@ -129,7 +130,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
   - `global`: Ensures the package is installed globally.
   - `state`: Ensures the package is present.
 
-#### **Copy App Folder to Target Node**
+### **Copy App Folder to Target Node**
 
     ```yaml
     - name: Copy app folder to target node
@@ -146,7 +147,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
   - `dest`: Destination directory on the target node.
   - `mode`: Sets the permissions for the copied files.
 
-#### **Install Packages Based on package.json**
+### **Install Packages Based on package.json**
 
     ```yaml
     - name: Install packages based on package.json
@@ -160,7 +161,22 @@ This Ansible playbook provisions an application VM by performing several tasks, 
     - **Details**:
       - `path`: Path to the application directory containing `package.json`.
 
-#### **Start the Application Using PM2**
+### **Stop the Application Using PM2**
+
+    ```yaml
+    - name: Stop the application using PM2
+      shell: pm2 stop all
+      args:
+        chdir: /home/{{ ansible_user }}/repo/app
+    ```
+
+    - **Task**: Starts the application using PM2.
+    - **Module**: `shell`
+    - **Details**:
+      - `shell`: Runs the `pm2 stop all` command.
+      - `args`: Changes the working directory to the application directory.
+      - 
+### **Start the Application Using PM2**
 
     ```yaml
     - name: Start the application using PM2
