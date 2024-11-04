@@ -5,6 +5,15 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 - [Ansible Playbook Documentation](#ansible-playbook-documentation)
   - [Playbook Structure](#playbook-structure)
     - [Task Breakdown](#task-breakdown)
+      - [**Clone the App Repository**](#clone-the-app-repository)
+      - [**Update apt Repository and Cache**](#update-apt-repository-and-cache)
+      - [**Install NodeSource Node.js 20.x Repository**](#install-nodesource-nodejs-20x-repository)
+      - [**Install Node.js and npm**](#install-nodejs-and-npm)
+      - [**Verify and print Node.js Version**](#verify-and-print-nodejs-version)
+      - [**Install PM2**](#install-pm2)
+      - [**Copy App Folder to Target Node**](#copy-app-folder-to-target-node)
+      - [**Install Packages Based on package.json**](#install-packages-based-on-packagejson)
+      - [**Start the Application Using PM2**](#start-the-application-using-pm2)
 
 ## Playbook Structure
 
@@ -23,7 +32,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 
 ### Task Breakdown
 
-1. **Clone the App Repository**
+#### **Clone the App Repository**
 
     ```yaml
     - name: Clone the app repository to the controller node
@@ -34,14 +43,14 @@ This Ansible playbook provisions an application VM by performing several tasks, 
             version: main
     ```
 
-   - **Task**: Clones the application repository to the controller node.
-   - **Module**: `ansible.builtin.git`
-   - **Details**:
-     - `repo`: The URL of the Git repository.
-     - `dest`: The destination directory on the controller node.
-     - `version`: The branch to clone (main).
+- **Task**: Clones the application repository to the controller node.
+- **Module**: `ansible.builtin.git`
+- **Details**:
+  - `repo`: The URL of the Git repository.
+  - `dest`: The destination directory on the controller node.
+  - `version`: The branch to clone (main).
 
-2. **Update apt Repository and Cache**:
+#### **Update apt Repository and Cache**
 
     ```yaml
     - name: Update apt repository and cache
@@ -51,14 +60,14 @@ This Ansible playbook provisions an application VM by performing several tasks, 
         cache_valid_time: 3600
     ```
 
-   - **Task**: Updates the apt package repository and cache.
-   - **Module**: `apt`
-   - **Details**:
-     - `update_cache`: Ensures the package list is updated.
-     - `force_apt_get`: Forces the use of `apt-get`.
-     - `cache_valid_time`: Sets the cache validity time.
+- **Task**: Updates the apt package repository and cache.
+- **Module**: `apt`
+- **Details**:
+  - `update_cache`: Ensures the package list is updated.
+  - `force_apt_get`: Forces the use of `apt-get`.
+  - `cache_valid_time`: Sets the cache validity time.
 
-3. **Install NodeSource Node.js 20.x Repository**:
+#### **Install NodeSource Node.js 20.x Repository**
 
     ```yaml
     - name: Install NodeSource Node.js 20.x repository
@@ -67,11 +76,11 @@ This Ansible playbook provisions an application VM by performing several tasks, 
 
     ```
 
-   - **Task**: Adds the NodeSource repository for Node.js 20.x.
-   - **Module**: `ansible.builtin.shell`
-   - **Details**: Runs a shell command to add the repository.
+- **Task**: Adds the NodeSource repository for Node.js 20.x.
+- **Module**: `ansible.builtin.shell`
+- **Details**: Runs a shell command to add the repository.
 
-4. **Install Node.js and npm**:
+#### **Install Node.js and npm**
 
     ```yaml
     - name: Install Node.js and npm
@@ -81,13 +90,13 @@ This Ansible playbook provisions an application VM by performing several tasks, 
         state: present
     ```
 
-   - **Task**: Installs Node.js and npm.
-   - **Module**: `apt`
-   - **Details**:
-     - `name`: Specifies the packages to install.
-     - `state`: Ensures the packages are present.
+- **Task**: Installs Node.js and npm.
+- **Module**: `apt`
+- **Details**:
+  - `name`: Specifies the packages to install.
+  - `state`: Ensures the packages are present.
 
-5. **Verify and print Node.js Version**:
+#### **Verify and print Node.js Version**
 
     ```yaml
     - name: Verify Node.js version
@@ -99,11 +108,11 @@ This Ansible playbook provisions an application VM by performing several tasks, 
         msg: "Node.js version is {{ node_version.stdout }}"
     ```
 
-   - **Task**: Verifies the installed Node.js version.
-   - **Module**: `ansible.builtin.command`, `ansible.builtin.debug`
-   - **Details**: Runs the `node -v` command, registers the output and prints.
+- **Task**: Verifies the installed Node.js version.
+- **Module**: `ansible.builtin.command`, `ansible.builtin.debug`
+- **Details**: Runs the `node -v` command, registers the output and prints.
 
-6. **Install PM2**:
+#### **Install PM2**
 
     ```yaml
     - name: Install PM2
@@ -113,14 +122,14 @@ This Ansible playbook provisions an application VM by performing several tasks, 
         state: present
     ```
 
-   - **Task**: Installs PM2 globally using npm.
-   - **Module**: `npm`
-   - **Details**:
-     - `name`: Specifies the package to install (pm2).
-     - `global`: Ensures the package is installed globally.
-     - `state`: Ensures the package is present.
+- **Task**: Installs PM2 globally using npm.
+- **Module**: `npm`
+- **Details**:
+  - `name`: Specifies the package to install (pm2).
+  - `global`: Ensures the package is installed globally.
+  - `state`: Ensures the package is present.
 
-7. **Copy App Folder to Target Node**:
+#### **Copy App Folder to Target Node**
 
     ```yaml
     - name: Copy app folder to target node
@@ -130,14 +139,14 @@ This Ansible playbook provisions an application VM by performing several tasks, 
         mode: '0755'
     ```
 
-   - **Task**: Copies the application folder to the target node.
-   - **Module**: `ansible.builtin.copy`
-   - **Details**:
-     - `src`: Source directory on the controller node.
-     - `dest`: Destination directory on the target node.
-     - `mode`: Sets the permissions for the copied files.
+- **Task**: Copies the application folder to the target node.
+- **Module**: `ansible.builtin.copy`
+- **Details**:
+  - `src`: Source directory on the controller node.
+  - `dest`: Destination directory on the target node.
+  - `mode`: Sets the permissions for the copied files.
 
-8.  **Install Packages Based on package.json**:
+#### **Install Packages Based on package.json**
 
     ```yaml
     - name: Install packages based on package.json
@@ -151,7 +160,7 @@ This Ansible playbook provisions an application VM by performing several tasks, 
     - **Details**:
       - `path`: Path to the application directory containing `package.json`.
 
-9.  **Start the Application Using PM2**:
+#### **Start the Application Using PM2**
 
     ```yaml
     - name: Start the application using PM2
