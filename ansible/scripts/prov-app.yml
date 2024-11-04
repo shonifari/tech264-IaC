@@ -1,0 +1,97 @@
+---
+
+- name: Provision app 
+  hosts: web
+  gather_facts: yes
+  # Admin access
+  become: true
+  
+  # instructions aka tasks
+  tasks:
+    # CLONE APP
+  - name: Clone the app repository to the controller node      
+    delegate_to: localhost
+    ansible.builtin.git:
+      repo: 'https://github.com/shonifari/tech264-sparta-app.git'
+      dest: /home/{{ ansible_user }}/repo
+      version: main
+
+
+  # Update repositories
+  - name: Update apt repository and cache
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+      cache_valid_time: 3600
+
+  # Add Nodejs repository
+  - name: Install NodeSource Node.js 20.x repository
+    ansible.builtin.shell: |
+      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  
+  # Install Nodejs
+  - name: Install Node.js and npm
+    apt:
+      name:
+        - nodejs
+      state: present
+
+  # Verify Nodejs
+  - name: Verify Node.js version
+    ansible.builtin.command: node -v
+    register: node_version
+
+  - name: Print Node.js version
+    ansible.builtin.debug:
+      msg: "Node.js version is {{ node_version.stdout }}"
+
+
+  # Install PM2
+  - name: Install PM2
+    npm:
+      name: pm2
+      global: yes
+      state: present
+
+  # Copy app
+  - name: Copy app folder to target node      
+    ansible.builtin.copy:
+        src: /home/{{ ansible_user }}/repo/
+        dest: /home/{{ ansible_user }}/repo/
+        mode: '0755'
+  
+
+  # Export DB variable
+  - name: Export DB HOST 
+    shell: export DB_HOST="mongodb://172.31.58.27:27017/posts"
+
+  # NPM Install app dependencies
+  - name: Install packages based on package.json.
+    community.general.npm:
+      path: /home/{{ ansible_user }}/repo/app/
+
+  # PM2 stop all and start app
+  - name: Stop all previous processes
+    shell: pm2 stop all || true
+    args:
+      chdir: /home/{{ ansible_user }}/repo/app
+ 
+  # PM2start app
+  - name: Stop all previous and start the application using PM2
+    shell: pm2 start app.js
+    args:
+      chdir: /home/{{ ansible_user }}/repo/app
+  
+
+  # Install nginx
+  - name: install nginx
+    # Use package 'nginx', 'state=present' means we need it running
+    apt: pkg=nginx state=present
+
+  # Configure Nginx
+  - name: Start the application using PM2
+    shell: sed -i 's|try_files $uri $uri/ =404;|proxy_pass http://localhost:3000;|' /etc/nginx/sites-available/default
+
+  # Restart Nginx
+  - name: Restart nginx 
+    shell: systemctl restart nginx
